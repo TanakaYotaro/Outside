@@ -1,5 +1,7 @@
 package com.example.tanaka.outside;
 
+import android.app.Activity;
+import android.app.DialogFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -8,64 +10,72 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.PopupWindow;
+import android.widget.TextView;
 import android.widget.Toast;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.view.WindowManager;
 
+import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity
-    implements View.OnClickListener{
-    private Button button;
-    private PopupWindow mPopupWindow;
+public class MainActivity extends AppCompatActivity{
+    private android.app.DialogFragment dialogFragment;
+    private FragmentManager flagmentManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button show_button =findViewById(R.id.show_button);
+        LayoutInflater inflater = (LayoutInflater) this.getSystemService(
+                LAYOUT_INFLATER_SERVICE);
+        final View layout = inflater.inflate(R.layout.dialog,
+                (ViewGroup) findViewById(R.id.layout_root));
+        Button button = (Button)findViewById(R.id.show_button);
 
-        Toast.makeText(this, "テスト1", Toast.LENGTH_LONG).show();
-
-        button=(Button)this.findViewById(R.id.show_button);
-        button.setOnClickListener(this);
-    }
-    public void onClick(View view){
-        Toast.makeText(this, "2テスト2", Toast.LENGTH_LONG).show();
-        mPopupWindow = new PopupWindow(MainActivity.this);
-
-
-        // レイアウト設定
-        View popupView = getLayoutInflater().inflate(R.layout.popup_layout, null);
-        popupView.findViewById(R.id.close_button).setOnClickListener(new View.OnClickListener() {
+        // ボタンタップでAlertを表示させる
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPopupWindow.isShowing()) {
-                    mPopupWindow.dismiss();
-                }
+                AlertDialog alertDialog;
+
+                // アラーとダイアログ を生成
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("ダイアログタイトル");
+                builder.setView(layout);
+                alertDialog = builder.create();
+
+                builder.setPositiveButton("OK", new OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // OK ボタンクリック処理
+                        // ID と PASSWORD を取得
+                        EditText id
+                                = (EditText) layout.findViewById(R.id.customDlg_id);
+                        EditText pass
+                                = (EditText) layout.findViewById(R.id.customDlg_pass);
+                        String strId = id.getText().toString();
+                        String strPass = pass.getText().toString();
+                    }
+                });
+                builder.setNegativeButton("Cancel", new OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        // Cancel ボタンクリック処理
+                    }
+                });
+                WindowManager.LayoutParams wmlp=alertDialog.getWindow().getAttributes();
+                wmlp.gravity=Gravity.BOTTOM;
+                alertDialog.getWindow().setAttributes(wmlp);
+                // 表示
+                alertDialog.show();
+                //builder.create().show();
             }
         });
-        mPopupWindow.setContentView(popupView);
 
-        // 背景設定
-        mPopupWindow.setBackgroundDrawable(getResources().getDrawable(R.drawable.popup_background));
-
-        // タップ時に他のViewでキャッチされないための設定
-        mPopupWindow.setOutsideTouchable(true);
-        mPopupWindow.setFocusable(true);
-
-        // 表示サイズの設定 今回は幅300dp
-        float width = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 300, getResources().getDisplayMetrics());
-        mPopupWindow.setWindowLayoutMode((int) width, WindowManager.LayoutParams.WRAP_CONTENT);
-        mPopupWindow.setWidth((int) width);
-        mPopupWindow.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
-
-        // 画面中央に表示
-        mPopupWindow.showAtLocation(findViewById(R.id.show_button), Gravity.CENTER, 0, 0);
     }
-
-    @Override
-    protected void onDestroy() {
-        if (mPopupWindow != null && mPopupWindow.isShowing()) {
-            mPopupWindow.dismiss();
-        }
-        super.onDestroy();
-    }
-
 }
